@@ -1,0 +1,1447 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Serevo — Find Your Calm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --g: #10b981;
+        --g2: #34d399;
+        --bg: #060a07;
+        --bg2: #0a100c;
+        --bg3: #0f1a12;
+        --bg4: #162019;
+        --text: #dff2e9;
+        --muted: #5a8a70;
+        --faint: #1e3528;
+        --border: rgba(16, 185, 129, 0.1);
+        --border2: rgba(16, 185, 129, 0.2);
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+        cursor: none;
+      }
+      .cursor {
+        position: fixed;
+        width: 8px;
+        height: 8px;
+        background: var(--g);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.3s,
+          height 0.3s;
+        mix-blend-mode: difference;
+      }
+      .cursor-ring {
+        position: fixed;
+        width: 36px;
+        height: 36px;
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.3s,
+          height 0.3s,
+          border-color 0.3s;
+      }
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 500;
+        padding: 1.5rem 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .nav-bg {
+        position: absolute;
+        inset: 0;
+        background: rgba(6, 10, 7, 0);
+        backdrop-filter: blur(0px);
+        border-bottom: 1px solid transparent;
+        transition: all 0.5s;
+      }
+      nav.scrolled .nav-bg {
+        background: rgba(6, 10, 7, 0.88);
+        backdrop-filter: blur(24px);
+        border-bottom-color: var(--border);
+      }
+      .nav-logo {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: var(--g);
+        text-decoration: none;
+        letter-spacing: 0.06em;
+        position: relative;
+        z-index: 1;
+      }
+      .nav-links {
+        display: flex;
+        gap: 2.5rem;
+        list-style: none;
+        position: relative;
+        z-index: 1;
+      }
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 400;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        transition: color 0.25s;
+      }
+      .nav-links a:hover {
+        color: var(--g);
+      }
+      .noise {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        opacity: 0.03;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-size: 200px 200px;
+      }
+
+      /* HERO */
+      .hero {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        padding: 0 3rem;
+        gap: 4rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-left {
+        padding-top: 6rem;
+        position: relative;
+        z-index: 2;
+      }
+      .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.4rem 1rem;
+        border: 1px solid var(--border2);
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 400;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--g);
+        margin-bottom: 2rem;
+        opacity: 0;
+        animation: rise 1s 0.2s ease forwards;
+      }
+      .tag-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--g);
+        animation: blink 2s ease-in-out infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+      .hero-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2.8rem, 5vw, 4.8rem);
+        font-weight: 400;
+        line-height: 1.08;
+        letter-spacing: -0.015em;
+        margin-bottom: 1.75rem;
+        opacity: 0;
+        animation: rise 1s 0.4s ease forwards;
+      }
+      .hero-title span {
+        color: var(--g);
+        font-style: italic;
+      }
+      .hero-desc {
+        font-size: 1rem;
+        font-weight: 300;
+        color: var(--muted);
+        line-height: 1.85;
+        max-width: 400px;
+        margin-bottom: 2.5rem;
+        opacity: 0;
+        animation: rise 1s 0.6s ease forwards;
+      }
+      .hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        opacity: 0;
+        animation: rise 1s 0.8s ease forwards;
+      }
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.75rem;
+        background: var(--g);
+        border-radius: 50px;
+        color: #030d07;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        letter-spacing: 0.04em;
+        transition: all 0.3s;
+        border: none;
+        cursor: none;
+      }
+      .btn-primary:hover {
+        background: var(--g2);
+        transform: translateY(-2px);
+      }
+      .btn-ghost {
+        font-size: 0.82rem;
+        font-weight: 400;
+        color: var(--muted);
+        text-decoration: none;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid var(--faint);
+        padding-bottom: 2px;
+        transition:
+          color 0.25s,
+          border-color 0.25s;
+        cursor: none;
+      }
+      .btn-ghost:hover {
+        color: var(--text);
+        border-color: var(--muted);
+      }
+      .hero-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding-top: 6rem;
+        opacity: 0;
+        animation: rise 1.2s 0.5s ease forwards;
+      }
+      .orb-wrap {
+        position: relative;
+        width: 380px;
+        height: 380px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .orb-ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        animation: orbRotate 20s linear infinite;
+      }
+      .orb-ring:nth-child(1) {
+        width: 100%;
+        height: 100%;
+        border-color: rgba(16, 185, 129, 0.07);
+      }
+      .orb-ring:nth-child(2) {
+        width: 80%;
+        height: 80%;
+        border-color: rgba(16, 185, 129, 0.11);
+        animation-direction: reverse;
+        animation-duration: 15s;
+      }
+      .orb-ring:nth-child(3) {
+        width: 60%;
+        height: 60%;
+        border-color: rgba(16, 185, 129, 0.17);
+        animation-duration: 10s;
+      }
+      .orb-dot {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--g);
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      @keyframes orbRotate {
+        from {
+          transform: rotate(0);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .orb-core {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 40% 35%,
+          rgba(52, 211, 153, 0.22) 0%,
+          rgba(16, 185, 129, 0.15) 30%,
+          rgba(6, 78, 53, 0.1) 60%,
+          transparent 80%
+        );
+        border: 1px solid rgba(16, 185, 129, 0.28);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        animation: orbPulse 5s ease-in-out infinite;
+      }
+      @keyframes orbPulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 40px rgba(16, 185, 129, 0.07);
+        }
+        50% {
+          transform: scale(1.07);
+          box-shadow: 0 0 80px rgba(16, 185, 129, 0.14);
+        }
+      }
+      .orb-text {
+        font-family: "Playfair Display", serif;
+        font-size: 0.85rem;
+        font-style: italic;
+        color: rgba(16, 185, 129, 0.7);
+        letter-spacing: 0.08em;
+        text-align: center;
+        line-height: 1.8;
+      }
+      .orb-num {
+        display: block;
+        font-family: "Playfair Display", serif;
+        font-size: 2.8rem;
+        font-style: normal;
+        color: var(--g);
+        line-height: 1;
+        margin-bottom: 0.2rem;
+      }
+      .orb-glow {
+        position: absolute;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(16, 185, 129, 0.07) 0%,
+          transparent 70%
+        );
+        filter: blur(30px);
+        animation: orbPulse 5s ease-in-out infinite;
+      }
+
+      /* MARQUEE */
+      .marquee-wrap {
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        overflow: hidden;
+        padding: 1rem 0;
+        background: var(--bg2);
+      }
+      .marquee-track {
+        display: flex;
+        gap: 4rem;
+        width: max-content;
+        animation: marqueeScroll 30s linear infinite;
+      }
+      .marquee-track span {
+        font-size: 0.75rem;
+        font-weight: 300;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .marquee-track span.accent {
+        color: var(--g);
+      }
+      @keyframes marqueeScroll {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* SECTIONS */
+      .section {
+        padding: 8rem 3rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .label {
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--g);
+        margin-bottom: 1rem;
+        font-weight: 400;
+      }
+      .big-title {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2rem, 3.5vw, 3rem);
+        font-weight: 400;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+      }
+      .big-title em {
+        color: var(--g);
+        font-style: italic;
+      }
+      .sub {
+        font-size: 0.95rem;
+        font-weight: 300;
+        color: var(--muted);
+        line-height: 1.85;
+        max-width: 500px;
+        margin-bottom: 4rem;
+      }
+
+      /* FEATURES */
+      #features {
+        border-top: 1px solid var(--border);
+      }
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .feat {
+        background: var(--bg2);
+        padding: 3rem;
+        transition: background 0.4s;
+        position: relative;
+        overflow: hidden;
+      }
+      .feat::before {
+        content: "";
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(16, 185, 129, 0.06) 0%,
+          transparent 70%
+        );
+        transition:
+          transform 0.6s,
+          opacity 0.6s;
+        opacity: 0;
+      }
+      .feat:hover {
+        background: var(--bg3);
+      }
+      .feat:hover::before {
+        opacity: 1;
+        transform: scale(1.3);
+      }
+      .feat-num {
+        font-family: "Playfair Display", serif;
+        font-size: 3.5rem;
+        font-weight: 400;
+        font-style: italic;
+        color: var(--faint);
+        line-height: 1;
+        margin-bottom: 1.5rem;
+        transition: color 0.4s;
+      }
+      .feat:hover .feat-num {
+        color: rgba(16, 185, 129, 0.22);
+      }
+      .feat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        border: 1px solid var(--border2);
+        background: rgba(16, 185, 129, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+      }
+      .feat-icon svg {
+        width: 22px;
+        height: 22px;
+        stroke: var(--g);
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .feat-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        font-weight: 400;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+      }
+      .feat-desc {
+        font-size: 0.88rem;
+        font-weight: 300;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+      .feat-tag {
+        display: inline-block;
+        margin-top: 1.5rem;
+        padding: 0.3rem 0.9rem;
+        border: 1px solid var(--border);
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 2rem;
+      }
+      .stat {
+        background: var(--bg2);
+        padding: 2.5rem 2rem;
+        text-align: center;
+      }
+      .stat-num {
+        font-family: "Playfair Display", serif;
+        font-size: 2.8rem;
+        font-weight: 400;
+        color: var(--g);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+      .stat-label {
+        font-size: 0.78rem;
+        font-weight: 300;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+      }
+
+      /* HOW */
+      #how {
+        border-top: 1px solid var(--border);
+      }
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 64px 1fr;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.3s;
+      }
+      .step:last-child {
+        border-bottom: none;
+      }
+      .step:hover {
+        background: var(--bg3);
+      }
+      .step-num-col {
+        padding: 2rem;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        border-right: 1px solid var(--border);
+      }
+      .step-n {
+        font-family: "Playfair Display", serif;
+        font-size: 0.9rem;
+        font-style: italic;
+        color: var(--muted);
+      }
+      .step-body {
+        padding: 2rem 2.5rem;
+      }
+      .step-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.2rem;
+        font-weight: 400;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+      }
+      .step-desc {
+        font-size: 0.88rem;
+        font-weight: 300;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      /* LEGAL */
+      .legal-full {
+        border-top: 1px solid var(--border);
+        padding: 7rem 3rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .legal-date {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-bottom: 3rem;
+        font-weight: 300;
+        letter-spacing: 0.04em;
+      }
+      .legal-body h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: var(--text);
+        margin: 2.5rem 0 0.75rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .legal-body p {
+        font-size: 0.88rem;
+        font-weight: 300;
+        color: var(--muted);
+        line-height: 1.85;
+        margin-bottom: 0.75rem;
+      }
+      .legal-body a {
+        color: var(--g);
+        text-decoration: none;
+      }
+      .legal-body ul {
+        list-style: none;
+        padding-left: 1rem;
+        margin-bottom: 0.75rem;
+      }
+      .legal-body ul li {
+        font-size: 0.88rem;
+        font-weight: 300;
+        color: var(--muted);
+        line-height: 1.85;
+        padding-left: 1.25rem;
+        position: relative;
+        margin-bottom: 0.25rem;
+      }
+      .legal-body ul li::before {
+        content: "—";
+        position: absolute;
+        left: 0;
+        color: var(--g);
+      }
+
+      /* CONTACT */
+      #contact {
+        border-top: 1px solid var(--border);
+        padding: 8rem 3rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: 6rem;
+      }
+      .contact-card {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 20px;
+        padding: 3rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .contact-card::before {
+        content: "";
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(16, 185, 129, 0.1) 0%,
+          transparent 70%
+        );
+      }
+      .contact-glyph {
+        font-family: "Playfair Display", serif;
+        font-size: 4rem;
+        font-style: italic;
+        color: var(--faint);
+        line-height: 1;
+        margin-bottom: 1.5rem;
+        display: block;
+      }
+      .contact-card p {
+        font-size: 0.88rem;
+        font-weight: 300;
+        color: var(--muted);
+        line-height: 1.8;
+        margin-bottom: 2rem;
+      }
+      .contact-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--g);
+        font-size: 1rem;
+        font-weight: 400;
+        text-decoration: none;
+        letter-spacing: 0.02em;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+        padding-bottom: 4px;
+        transition:
+          border-color 0.25s,
+          gap 0.25s;
+      }
+      .contact-link:hover {
+        border-color: var(--g);
+        gap: 1rem;
+      }
+      .contact-link svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--g);
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* FOOTER */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 2.5rem 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .footer-logo {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        color: var(--muted);
+        text-decoration: none;
+        letter-spacing: 0.06em;
+      }
+      .footer-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+      .footer-links a {
+        font-size: 0.76rem;
+        color: var(--muted);
+        text-decoration: none;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        transition: color 0.25s;
+      }
+      .footer-links a:hover {
+        color: var(--g);
+      }
+      .footer-copy {
+        font-size: 0.76rem;
+        color: var(--faint);
+        letter-spacing: 0.05em;
+      }
+
+      /* REVEAL */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s ease;
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: none;
+      }
+      .reveal-delay-1 {
+        transition-delay: 0.1s;
+      }
+      .reveal-delay-2 {
+        transition-delay: 0.2s;
+      }
+      .reveal-delay-3 {
+        transition-delay: 0.3s;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 800px) {
+        nav {
+          padding: 1.25rem 1.5rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        .hero {
+          grid-template-columns: 1fr;
+          padding: 7rem 1.5rem 4rem;
+          gap: 3rem;
+          text-align: center;
+        }
+        .hero-desc {
+          margin: 0 auto 2.5rem;
+        }
+        .hero-actions {
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        .hero-right {
+          padding-top: 0;
+        }
+        .orb-wrap {
+          width: 280px;
+          height: 280px;
+        }
+        .orb-core {
+          width: 130px;
+          height: 130px;
+        }
+        .section {
+          padding: 5rem 1.5rem;
+        }
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
+        .stats-row {
+          grid-template-columns: 1fr;
+        }
+        .step {
+          grid-template-columns: 48px 1fr;
+        }
+        #contact {
+          grid-template-columns: 1fr;
+          padding: 5rem 1.5rem;
+          gap: 3rem;
+        }
+        footer {
+          flex-direction: column;
+          gap: 1.5rem;
+          padding: 2rem 1.5rem;
+        }
+        .legal-full {
+          padding: 5rem 1.5rem;
+        }
+        body {
+          cursor: auto;
+        }
+        .cursor,
+        .cursor-ring {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cring"></div>
+
+    <nav id="nav">
+      <div class="nav-bg"></div>
+      <a href="#" class="nav-logo">Serevo</a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-left">
+        <div class="hero-tag">
+          <span class="tag-dot"></span>Coming to Google Play
+        </div>
+        <h1 class="hero-title">
+          The quiet space<br />your mind <span>deserves</span>
+        </h1>
+        <p class="hero-desc">
+          Breathing, journaling, mood tracking, and daily intentions — four
+          gentle practices, one mindful app.
+        </p>
+        <div class="hero-actions">
+          <a href="mailto:serevo.support@gmail.com" class="btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#030d07">
+              <path d="M5 3l14 9-14 9V3z" />
+            </svg>
+            Notify me at launch
+          </a>
+          <a href="#features" class="btn-ghost">Explore features →</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="orb-wrap">
+          <div class="orb-ring"><div class="orb-dot"></div></div>
+          <div class="orb-ring"><div class="orb-dot"></div></div>
+          <div class="orb-ring"><div class="orb-dot"></div></div>
+          <div class="orb-glow"></div>
+          <div class="orb-core">
+            <div class="orb-text">
+              <span class="orb-num">4</span>minutes a day
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee-wrap">
+      <div class="marquee-track">
+        <span>Mindful breathing</span><span class="accent">·</span>
+        <span>Guided journaling</span><span class="accent">·</span>
+        <span>Mood patterns</span><span class="accent">·</span>
+        <span>Daily intentions</span><span class="accent">·</span>
+        <span>Inner calm</span><span class="accent">·</span>
+        <span>Private by design</span><span class="accent">·</span>
+        <span>Built with care</span><span class="accent">·</span>
+        <span>Mindful breathing</span><span class="accent">·</span>
+        <span>Guided journaling</span><span class="accent">·</span>
+        <span>Mood patterns</span><span class="accent">·</span>
+        <span>Daily intentions</span><span class="accent">·</span>
+        <span>Inner calm</span><span class="accent">·</span>
+        <span>Private by design</span><span class="accent">·</span>
+        <span>Built with care</span><span class="accent">·</span>
+      </div>
+    </div>
+
+    <section class="section" id="features">
+      <div class="reveal"><p class="label">What you get</p></div>
+      <div class="reveal reveal-delay-1">
+        <h2 class="big-title">Four practices.<br /><em>One sanctuary.</em></h2>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <p class="sub">
+          Built around four gentle habits that compound over time. Just a few
+          minutes a day to feel the difference.
+        </p>
+      </div>
+
+      <div class="features-grid reveal">
+        <div class="feat">
+          <div class="feat-num">01</div>
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 3" />
+            </svg>
+          </div>
+          <h3 class="feat-title">Breathing</h3>
+          <p class="feat-desc">
+            Box breathing, 4-7-8, and custom sessions guided by soft visuals.
+            Activate your parasympathetic nervous system in minutes — any time,
+            anywhere.
+          </p>
+          <span class="feat-tag">Calm on demand</span>
+        </div>
+        <div class="feat">
+          <div class="feat-num">02</div>
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+          </div>
+          <h3 class="feat-title">Journaling</h3>
+          <p class="feat-desc">
+            A private space to write freely. Optional gentle prompts, zero
+            judgment. Your entries live on your device — encrypted, always
+            yours, never ours.
+          </p>
+          <span class="feat-tag">Fully private</span>
+        </div>
+        <div class="feat">
+          <div class="feat-num">03</div>
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <h3 class="feat-title">Mood Tracking</h3>
+          <p class="feat-desc">
+            Log your emotional state in seconds. See weekly and monthly
+            patterns. Learn what lifts you — and what quietly drains you.
+          </p>
+          <span class="feat-tag">Know yourself</span>
+        </div>
+        <div class="feat">
+          <div class="feat-num">04</div>
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <h3 class="feat-title">Intentions</h3>
+          <p class="feat-desc">
+            Begin each morning with one clear intention. A quiet anchor for your
+            day — not a task list, but a direction to move in. Simple. Powerful.
+          </p>
+          <span class="feat-tag">Purposeful days</span>
+        </div>
+      </div>
+
+      <div class="stats-row reveal">
+        <div class="stat">
+          <span class="stat-num">4 min</span
+          ><span class="stat-label">Average daily practice time</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">100%</span
+          ><span class="stat-label">Data stays on your device</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">0 ads</span
+          ><span class="stat-label">No tracking. No selling. Ever.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="reveal"><p class="label">The practice</p></div>
+      <div class="reveal reveal-delay-1">
+        <h2 class="big-title">Simple by <em>design</em></h2>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <p class="sub">
+          No streaks. No gamification. No pressure. Just a quiet rhythm you can
+          return to any time.
+        </p>
+      </div>
+      <div class="steps reveal">
+        <div class="step">
+          <div class="step-num-col"><span class="step-n">i</span></div>
+          <div class="step-body">
+            <h3 class="step-title">Open Serevo, any time</h3>
+            <p class="step-desc">
+              Morning, lunch break, before bed — whenever you have two minutes
+              and want to return to yourself.
+            </p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num-col"><span class="step-n">ii</span></div>
+          <div class="step-body">
+            <h3 class="step-title">Choose your practice</h3>
+            <p class="step-desc">
+              Breathe, write, check in with your mood, or set an intention. Each
+              is a self-contained moment — use one or all four.
+            </p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num-col"><span class="step-n">iii</span></div>
+          <div class="step-body">
+            <h3 class="step-title">Watch patterns emerge</h3>
+            <p class="step-desc">
+              Over days and weeks, your mood timeline and journal history
+              quietly reveal what's working. Awareness you can act on.
+            </p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num-col"><span class="step-n">iv</span></div>
+          <div class="step-body">
+            <h3 class="step-title">Make it a ritual</h3>
+            <p class="step-desc">
+              Consistency beats intensity. Even two minutes daily reshapes how
+              you relate to your own mind. Serevo grows with you.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="legal-full" id="privacy">
+      <p class="label">Legal</p>
+      <h2 class="big-title" style="margin-bottom: 0.5rem">Privacy Policy</h2>
+      <p class="legal-date">
+        Effective: January 29, 2026 · Last updated: January 29, 2026
+      </p>
+      <div class="legal-body">
+        <p>
+          At Serevo, we take your privacy seriously. This Privacy Policy
+          explains how we collect, use, disclose, and safeguard your information
+          when you use our mobile application. Please read this policy
+          carefully.
+        </p>
+        <h2>Information We Collect</h2>
+        <p>
+          We collect several types of information to provide and improve our
+          services:
+        </p>
+        <ul>
+          <li>
+            Personal Information: Name, email address, username, and profile
+            picture you provide during registration
+          </li>
+          <li>
+            Health Data: Health metrics, mood tracking, goals, and activities
+            you log in the app
+          </li>
+          <li>
+            Usage Data: App interactions, features used, and time spent within
+            the application
+          </li>
+          <li>
+            Device Information: Device type, OS, unique identifiers, and mobile
+            network information
+          </li>
+        </ul>
+        <h2>How We Use Your Information</h2>
+        <ul>
+          <li>To provide, maintain, and improve our services</li>
+          <li>To personalize your experience and provide tailored content</li>
+          <li>To communicate with you about updates, features, and support</li>
+          <li>To analyze usage patterns and optimize app performance</li>
+          <li>To send you notifications and reminders (with your consent)</li>
+          <li>To ensure security and prevent fraud or abuse</li>
+        </ul>
+        <h2>Data Security</h2>
+        <p>
+          We implement industry-standard security measures to protect your
+          personal information. Your data is encrypted in transit and at rest.
+          We use secure servers and regularly update our security protocols to
+          protect against unauthorized access, alteration, disclosure, or
+          destruction of your information.
+        </p>
+        <h2>Data Sharing & Disclosure</h2>
+        <p>
+          We do not sell your personal information to third parties. We may
+          share your information only in the following circumstances: with your
+          explicit consent, to comply with legal obligations, to protect our
+          rights and safety, or with service providers who assist us in
+          operating the app (under strict confidentiality agreements).
+        </p>
+        <h2>Your Data Rights</h2>
+        <p>
+          You have the right to access, update, or delete your personal
+          information at any time. You can exercise these rights through your
+          account settings or by contacting us. You may also opt-out of
+          promotional communications and adjust notification preferences in the
+          app settings.
+        </p>
+        <h2>Data Retention</h2>
+        <p>
+          We retain your personal information for as long as your account is
+          active or as needed to provide you services. If you request deletion
+          of your account, we will delete your data within 30 days, except for
+          information we are required to retain for legal purposes.
+        </p>
+        <h2>Children's Privacy</h2>
+        <p>
+          Serevo is not intended for children under 13 years of age. We do not
+          knowingly collect personal information from children. If you believe
+          we have collected information from a child, please contact us
+          immediately, and we will take steps to delete such information.
+        </p>
+        <h2>International Users</h2>
+        <p>
+          If you are accessing Serevo from outside the United States, please be
+          aware that your information may be transferred to, stored, and
+          processed in the United States. By using our services, you consent to
+          the transfer of your information to our facilities.
+        </p>
+        <h2>Third-Party Services</h2>
+        <p>
+          Our app may contain links to third-party websites or services. We are
+          not responsible for the privacy practices of these third parties. We
+          encourage you to read their privacy policies before providing any
+          information.
+        </p>
+        <h2>Analytics & Cookies</h2>
+        <p>
+          We use analytics tools to understand how users interact with our app.
+          These tools may use cookies or similar technologies to collect
+          information about your usage patterns. You can control cookie
+          preferences through your device settings.
+        </p>
+        <h2>Changes to Privacy Policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time. We will notify
+          you of any material changes by posting the new policy within the app
+          and updating the "Last Updated" date. Your continued use of Serevo
+          after such changes constitutes acceptance of the updated policy.
+        </p>
+        <h2>Contact Us</h2>
+        <p>
+          If you have any questions, concerns, or requests regarding this
+          Privacy Policy or our data practices, please contact us at
+          <a href="mailto:serevo.support@gmail.com">serevo.support@gmail.com</a>
+          or through our in-app support feature. We typically respond within 48
+          hours.
+        </p>
+      </div>
+    </div>
+
+    <div style="border-top: 1px solid var(--border)"></div>
+
+    <div class="legal-full" id="terms">
+      <p class="label">Legal</p>
+      <h2 class="big-title" style="margin-bottom: 0.5rem">Terms of Service</h2>
+      <p class="legal-date">
+        Effective: January 29, 2026 · Last updated: January 29, 2026
+      </p>
+      <div class="legal-body">
+        <p>
+          By using Serevo, you agree to these terms. Please read them carefully
+          before using our services.
+        </p>
+        <h2>1. Introduction</h2>
+        <p>
+          Welcome to Serevo. By accessing or using our mobile application, you
+          agree to be bound by these Terms of Service. Please read them
+          carefully before using our services.
+        </p>
+        <h2>2. Acceptance of Terms</h2>
+        <p>
+          By creating an account and using Serevo, you acknowledge that you have
+          read, understood, and agree to be bound by these Terms of Service and
+          our Privacy Policy. If you do not agree to these terms, please do not
+          use our services.
+        </p>
+        <h2>3. User Accounts</h2>
+        <p>
+          You are responsible for maintaining the confidentiality of your
+          account credentials and for all activities that occur under your
+          account. You agree to provide accurate, current, and complete
+          information during registration and to update such information to keep
+          it accurate and current.
+        </p>
+        <h2>4. User Conduct</h2>
+        <p>
+          You agree not to use Serevo for any unlawful purpose or in any way
+          that could damage, disable, overburden, or impair our services. You
+          will not attempt to gain unauthorized access to any part of our
+          services or interfere with other users' use and enjoyment of the app.
+        </p>
+        <h2>5. Health Information</h2>
+        <p>
+          Serevo provides wellness tracking and lifestyle management tools. Our
+          services are not intended to diagnose, treat, cure, or prevent any
+          disease. Always seek the advice of your physician or other qualified
+          health provider with any questions you may have regarding a medical
+          condition.
+        </p>
+        <h2>6. Intellectual Property</h2>
+        <p>
+          All content, features, and functionality of Serevo, including but not
+          limited to text, graphics, logos, and software, are owned by Serevo
+          and protected by international copyright, trademark, and other
+          intellectual property laws.
+        </p>
+        <h2>7. Subscription & Payments</h2>
+        <p>
+          Certain features of Serevo may require a paid subscription. By
+          purchasing a subscription, you agree to pay all applicable fees.
+          Subscriptions automatically renew unless cancelled before the renewal
+          date. Refunds are subject to our refund policy.
+        </p>
+        <h2>8. Data Usage</h2>
+        <p>
+          We collect and use your data as described in our Privacy Policy. By
+          using Serevo, you consent to our collection and use of your
+          information in accordance with our Privacy Policy.
+        </p>
+        <h2>9. Third-Party Services</h2>
+        <p>
+          Serevo may contain links to third-party websites or services. We are
+          not responsible for the content, privacy policies, or practices of any
+          third-party sites or services. Your use of third-party services is at
+          your own risk.
+        </p>
+        <h2>10. Disclaimer of Warranties</h2>
+        <p>
+          Serevo is provided "as is" and "as available" without warranties of
+          any kind, either express or implied. We do not warrant that the app
+          will be uninterrupted, error-free, or secure.
+        </p>
+        <h2>11. Limitation of Liability</h2>
+        <p>
+          To the fullest extent permitted by law, Serevo shall not be liable for
+          any indirect, incidental, special, consequential, or punitive damages
+          resulting from your use of or inability to use our services.
+        </p>
+        <h2>12. Changes to Terms</h2>
+        <p>
+          We reserve the right to modify these Terms of Service at any time. We
+          will notify you of any changes by posting the new Terms of Service
+          within the app. Your continued use of Serevo after such modifications
+          constitutes acceptance of the updated terms.
+        </p>
+        <h2>13. Termination</h2>
+        <p>
+          We may terminate or suspend your account and access to Serevo
+          immediately, without prior notice or liability, for any reason,
+          including breach of these Terms of Service.
+        </p>
+        <h2>14. Governing Law</h2>
+        <p>
+          These Terms of Service shall be governed by and construed in
+          accordance with the laws of the jurisdiction in which Serevo operates,
+          without regard to its conflict of law provisions.
+        </p>
+        <h2>15. Contact Us</h2>
+        <p>
+          If you have any questions about these Terms of Service, please contact
+          us at
+          <a href="mailto:serevo.support@gmail.com">serevo.support@gmail.com</a>
+          or through our in-app support feature.
+        </p>
+      </div>
+    </div>
+
+    <section id="contact">
+      <div class="contact-left reveal">
+        <p class="label">Say hello</p>
+        <h2 class="big-title">We're real<br />people. <em>Promise.</em></h2>
+        <p class="sub">
+          Questions, feedback, partnership ideas, or just want to tell us what
+          you need in a wellness app — we'd love to hear from you.
+        </p>
+      </div>
+      <div class="contact-card reveal reveal-delay-2">
+        <span class="contact-glyph">✉</span>
+        <p>
+          Drop us a message any time. We aim to reply within 48 hours, usually
+          much sooner.
+        </p>
+        <a href="mailto:serevo.support@gmail.com" class="contact-link">
+          serevo.support@gmail.com
+          <svg viewBox="0 0 24 24">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <a href="#" class="footer-logo">Serevo</a>
+      <ul class="footer-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#terms">Terms</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <p class="footer-copy">© 2025 Serevo. All rights reserved.</p>
+    </footer>
+
+    <script>
+      const cur = document.getElementById("cursor"),
+        ring = document.getElementById("cring");
+      let mx = 0,
+        my = 0,
+        rx = 0,
+        ry = 0;
+      document.addEventListener("mousemove", (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+        cur.style.left = mx + "px";
+        cur.style.top = my + "px";
+      });
+      (function loop() {
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        ring.style.left = rx + "px";
+        ring.style.top = ry + "px";
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll("a,.btn-primary,.btn-ghost").forEach((el) => {
+        el.addEventListener("mouseenter", () => {
+          cur.style.width = "14px";
+          cur.style.height = "14px";
+          ring.style.width = "52px";
+          ring.style.height = "52px";
+          ring.style.borderColor = "rgba(16,185,129,.6)";
+        });
+        el.addEventListener("mouseleave", () => {
+          cur.style.width = "8px";
+          cur.style.height = "8px";
+          ring.style.width = "36px";
+          ring.style.height = "36px";
+          ring.style.borderColor = "rgba(16,185,129,.4)";
+        });
+      });
+      window.addEventListener("scroll", () =>
+        document
+          .getElementById("nav")
+          .classList.toggle("scrolled", scrollY > 60),
+      );
+      const obs = new IntersectionObserver(
+        (e) =>
+          e.forEach((x) => {
+            if (x.isIntersecting) x.target.classList.add("in");
+          }),
+        { threshold: 0.12 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
+    </script>
+  </body>
+</html>
